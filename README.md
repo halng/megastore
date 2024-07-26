@@ -18,5 +18,5 @@
 | `support` | customer support | Python |
 | `aar`| analytics and reporting | Python |
 | `notify`| notifications | Python |
-| `user`| user page| Typescript |
+| `shop`| user page| Typescript |
 | `admin`| admin page| Typescript |
