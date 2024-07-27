@@ -1,17 +1,20 @@
 package main
 
 import (
- "github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
- router := gin.Default()
+	router := gin.Default()
 
- router.GET("/ping", func(c *gin.Context) {
-  c.JSON(200, gin.H{
-   "message": "pong",
-  })
- })
+	router.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
 
- router.Run(":8080")
+	err := router.Run(":5051")
+	if err != nil {
+		return
+	}
 }

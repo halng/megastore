@@ -32,8 +32,6 @@ services:
             docker-kafka-server:
               properties:
                 bootstrap.servers: "kafka:29092"
-              schema-registry:
-                url: "http://schema-registry:8085"
               connect:
                 - name: "connect"
                   url: "http://connect:8083"
@@ -42,7 +40,6 @@ services:
       - 8080:8080
     links:
       - kafka
-      - schema-registry
     networks:
       - my-store
 
