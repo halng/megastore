@@ -6,7 +6,7 @@
 
 |Component| Stand for| Language |
 | -- | -- | -- |
-| `getaway`| api getaway| Java |
+| `gateway`| api gateway| Java |
 | `cms`| content management system -  For managing product information, categories, etc.| Java |
 | `search` | product search | Java |
 | `iam`| identify and access management - JWT, OAuth for secure user sessions| Go |
@@ -15,8 +15,10 @@
 | `pgi`| payment gateway integration - PayPal, Stripe, or other payment processors | Rust |
 | `dms`| delivery management system | Rust |
 | `map`| marketing and promotion | Rust |
-| `support` | customer support | Python |
 | `aar`| analytics and reporting | Python |
 | `notify`| notifications | Python |
+| `recommend` | recommend system | python |
+| `support` | customer support | NodeJS |
+| `feedback`| user feedback | NodeJS|
 | `shop`| user page| Typescript |
 | `admin`| admin page| Typescript |
