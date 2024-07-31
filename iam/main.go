@@ -2,6 +2,9 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/tanhaok/MyStore/handlers"
+	"github.com/tanhaok/MyStore/models"
+	"os"
 )
 
 func init() {
@@ -10,15 +13,26 @@ func init() {
 }
 
 func main() {
+
+	// connect database
+	models.ConnectDB()
+
+	// get port from env
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5051"
+	}
+
 	router := gin.Default()
 
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	groupV1 := router.Group("/api/v1")
 
-	err := router.Run(":5051")
+	// routes
+	groupV1.POST("/login", handlers.Login)
+	groupV1.POST("/register", handlers.Register)
+	groupV1.GET("/validate", handlers.Validate)
+
+	err := router.Run(":" + port)
 	if err != nil {
 		return
 	}
