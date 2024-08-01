@@ -19,4 +19,5 @@ const (
 	AccountUpdated  = "Account updated successfully"
 	AccountDeleted  = "Account deleted successfully"
 	DefaultCreator  = "REGISTER"
+	AccountExists   = "Account with username: %s or email: %s already exists"
 )

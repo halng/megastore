@@ -20,7 +20,7 @@ type Role struct {
 }
 
 // InitRole auto create roles when the app starts
-func initRole(db *gorm.DB) {
+func InitRole(db *gorm.DB) {
 	roles := []string{RoleAnonymous, RoleAdmin, RoleStaff, RoleUser, RoleSuperAdmin}
 
 	for _, roleName := range roles {
