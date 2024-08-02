@@ -13,11 +13,11 @@ const (
 	InternalServerError = "Internal Server Error"
 
 	// account constant
-	AccountCreated  = "Account created successfully"
-	AccountExist    = "Account already exist"
-	AccountNotFound = "Account not found"
-	AccountUpdated  = "Account updated successfully"
-	AccountDeleted  = "Account deleted successfully"
-	DefaultCreator  = "REGISTER"
-	AccountExists   = "Account with username: %s or email: %s already exists"
+	AccountCreated   = "Account created successfully"
+	AccountNotFound  = "Account not found"
+	AccountUpdated   = "Account updated successfully"
+	AccountDeleted   = "Account deleted successfully"
+	DefaultCreator   = "REGISTER"
+	AccountExists    = "Account with username: %s or email: %s already exists"
+	PasswordNotMatch = "Password doesn't match"
 )

@@ -25,6 +25,10 @@ type LoginRequest struct {
 	Email    string `json:"email"`
 }
 
+type LoginResponse struct {
+	ApiToken string `json:"api-token"`
+}
+
 // ========================= Functions =========================
 
 // Register new account
@@ -32,13 +36,12 @@ func Register(c *gin.Context) {
 	var userInput RegisterRequest
 
 	if err := c.ShouldBindJSON(&userInput); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": constants.MessageError})
+		c.JSON(http.StatusBadRequest, GetResponseDTO(400, nil, ErrorDTO{constants.MessageError}))
 		return
 	}
 
-
-	if _, err := models.ExistsByEmailOrUsername(userInput.Email, userInput.Username); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": fmt.Sprintf(constants.AccountExists, userInput.Email, userInput.Username)})
+	if models.ExistsByEmailOrUsername(userInput.Email, userInput.Username) {
+		c.JSON(http.StatusBadRequest, GetResponseDTO(400, nil, ErrorDTO{fmt.Sprintf(constants.AccountExists, userInput.Email, userInput.Username)}))
 		return
 	}
 
@@ -51,13 +54,13 @@ func Register(c *gin.Context) {
 	_, err := account.SaveAccount()
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": constants.MessageError})
+		c.JSON(http.StatusBadRequest, GetResponseDTO(400, nil, ErrorDTO{constants.MessageError}))
 		return
 	}
 
 	// send msg to kafka
 
-	c.JSON(http.StatusCreated, gin.H{"msg": constants.AccountCreated})
+	c.JSON(http.StatusCreated, GetResponseDTO(201, nil, ErrorDTO{}))
 }
 
 // Login verify user credentials and return uuid pair with token saved in redis
@@ -66,24 +69,28 @@ func Login(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&userInput); err != nil {
 		log.Printf("Value is incorrect. %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"msg": constants.MessageError})
+		c.JSON(http.StatusBadRequest, GetResponseDTO(404, nil, ErrorDTO{constants.MessageError}))
 		return
 	}
 
 	var account models.Account
 	var err error
 
-	if account, err = models.ExistsByEmailOrUsername(userInput.Email, userInput.Username); err != nil {
+	if account, err = models.GetAccountByEmailOrUsername(userInput.Email, userInput.Username); err != nil {
 		log.Printf("Account donesn't exits")
-		c.JSON(http.StatusNotFound, gin.H{"msg": constants.AccountNotFound})
+		c.JSON(http.StatusNotFound, GetResponseDTO(404, nil, ErrorDTO{constants.AccountNotFound}))
 		return
 	}
 
 	if !account.ComparePassword(userInput.Password) {
 		log.Print("Password doesn't match")
-		c.JSON(http.StatusUnauthorized, gin.H{"msg": constants.Unauthorized})
+		c.JSON(http.StatusUnauthorized, GetResponseDTO(401, nil, ErrorDTO{constants.PasswordNotMatch}))
 		return
 	}
+
+	token := account.GenerateAccessToken()
+
+	c.JSON(http.StatusOK, GetResponseDTO(200, LoginResponse{token}, ErrorDTO{}))
 
 }
 

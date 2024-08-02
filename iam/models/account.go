@@ -3,7 +3,9 @@ package models
 import (
 	"github.com/google/uuid"
 	"github.com/tanhaok/MyStore/constants"
+	"github.com/tanhaok/MyStore/utils"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 	"time"
 )
 
@@ -28,7 +30,7 @@ func (account *Account) SaveAccount() (*Account, error) {
 	account.CreateAt = time.Now().Unix()
 	account.CreateBy = constants.DefaultCreator
 
-	if err := DB.Create(&account).Error; err != nil {
+	if err := DB.Postgres.Create(&account).Error; err != nil {
 		return &Account{}, err
 	}
 
@@ -48,9 +50,15 @@ func (account *Account) BeforeSave() error {
 	return nil
 }
 
-func ExistsByEmailOrUsername(email string, username string) (Account, error) {
+func ExistsByEmailOrUsername(email string, username string) bool {
+	var count int64
+	DB.Postgres.Model(&Account{}).Where("email = ? OR username = ?", email, username).Count(&count)
+	return count > 0
+}
+
+func GetAccountByEmailOrUsername(email string, username string) (Account, error) {
 	var account Account
-	err := DB.Model(&Account{}).Where("email = ? OR username = ?", email, username).Take(&account).Error
+	err := DB.Postgres.Model(&Account{}).Where("email = ? OR username = ?", email, username).Take(&account).Error
 	return account, err
 }
 
@@ -60,5 +68,19 @@ func (account *Account) ComparePassword(password string) bool {
 }
 
 func (account *Account) GenerateAccessToken() string {
-	token, err = token.Ge
+	jwtToken, err := utils.GenerateJWT(account.ID.String(), account.Username)
+	if err != nil {
+		log.Printf("Cannot generate access token for user %s ", account.Username)
+		return ""
+	}
+
+	cacheId := uuid.New().String()
+	err = SaveDataToCache(cacheId, jwtToken)
+
+	if err != nil {
+		log.Printf("Cannot save token in cache")
+		return ""
+	}
+
+	return cacheId
 }
