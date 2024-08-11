@@ -1,8 +1,11 @@
 package models
 
 import (
+	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/tanhaok/MyStore/constants"
+	"github.com/tanhaok/MyStore/db"
+	"github.com/tanhaok/MyStore/dto"
 	"github.com/tanhaok/MyStore/utils"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -30,7 +33,7 @@ func (account *Account) SaveAccount() (*Account, error) {
 	account.CreateAt = time.Now().Unix()
 	account.CreateBy = constants.DefaultCreator
 
-	if err := DB.Postgres.Create(&account).Error; err != nil {
+	if err := db.DB.Postgres.Create(&account).Error; err != nil {
 		return &Account{}, err
 	}
 
@@ -52,13 +55,13 @@ func (account *Account) BeforeSave() error {
 
 func ExistsByEmailOrUsername(email string, username string) bool {
 	var count int64
-	DB.Postgres.Model(&Account{}).Where("email = ? OR username = ?", email, username).Count(&count)
+	db.DB.Postgres.Model(&Account{}).Where("email = ? OR username = ?", email, username).Count(&count)
 	return count > 0
 }
 
 func GetAccountByEmailOrUsername(email string, username string) (Account, error) {
 	var account Account
-	err := DB.Postgres.Model(&Account{}).Where("email = ? OR username = ?", email, username).Take(&account).Error
+	err := db.DB.Postgres.Model(&Account{}).Where("email = ? OR username = ?", email, username).Take(&account).Error
 	return account, err
 }
 
@@ -75,7 +78,7 @@ func (account *Account) GenerateAccessToken() string {
 	}
 
 	cacheId := uuid.New().String()
-	err = SaveDataToCache(cacheId, jwtToken)
+	err = db.SaveDataToCache(cacheId, jwtToken)
 
 	if err != nil {
 		log.Printf("Cannot save token in cache")
@@ -83,4 +86,19 @@ func (account *Account) GenerateAccessToken() string {
 	}
 
 	return cacheId
+}
+
+func (account *Account) GetSerializedMessageForActiveNewUser() string {
+	var activeNewUser dto.ActiveNewUser
+	activeNewUser.Username = account.Username
+	activeNewUser.Email = account.Email
+	activeNewUser.Token = utils.ComputeHMAC256(account.Username, account.Email)
+	activeNewUser.ExpiredTime = time.Now().UnixMilli() + 1000*60*60*24 // 1 day
+
+	serialized, err := json.Marshal(activeNewUser)
+	if err != nil {
+		log.Printf("Cannot serialize data")
+		return ""
+	}
+	return string(serialized)
 }

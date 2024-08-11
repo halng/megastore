@@ -3,7 +3,9 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/tanhaok/MyStore/db"
 	"github.com/tanhaok/MyStore/handlers"
+	"github.com/tanhaok/MyStore/kafka"
 	"github.com/tanhaok/MyStore/models"
 	"log"
 	"os"
@@ -12,13 +14,21 @@ import (
 func main() {
 
 	// connect database
-	models.ConnectDB()
+	db.ConnectDB()
+	models.Initialize()
 
 	var err error
 
 	err = godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf("Error loading .env file")
+	}
+
+	// init kafka server
+	bootstrapServer := os.Getenv("KAFKA_HOST")
+	err = kafka.InitializeKafkaProducer(bootstrapServer)
+	if err != nil {
+		panic(err)
 	}
 
 	port := os.Getenv("PORT")
