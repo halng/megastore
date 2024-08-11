@@ -1,4 +1,4 @@
-package models
+package db
 
 import (
 	"fmt"
@@ -58,10 +58,4 @@ func ConnectDB() {
 		DB:       RdDatabase,
 	})
 
-	/**
-	 * Migration data
-	 */
-	DB.Postgres.AutoMigrate(&Account{})
-	DB.Postgres.AutoMigrate(&Role{})
-	InitRole(DB.Postgres)
 }
