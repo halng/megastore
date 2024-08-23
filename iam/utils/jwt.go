@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"os"
 )
@@ -38,20 +39,21 @@ func GenerateJWT(id string, username string) (string, error) {
 //
 //	return err == nil
 //}
-//
-//func ExtractTokenFromId(tokenStr string) (string, string, string) {
-//	/**
-//	*	token: uuid use this uuid to get actual token in cache, if exist => token valid, if not, token expire
-//	 */
-//	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-//		return []byte(os.Getenv(EnvApiSecretKey)), nil
-//	})
-//	if err != nil {
-//		return "", "", ""
-//	}
-//	claims, ok := token.Claims.(jwt.MapClaims)
-//	if ok && token.Valid {
-//		return fmt.Sprintf("%v", claims[IdClaimKey]), fmt.Sprintf("%v", claims[UsernameClaimKey]), fmt.Sprintf("%v", claims[RoleClaimKey])
-//	}
-//	return "", "", ""
-//}
+
+// ExtractDataFromToken get data from token
+func ExtractDataFromToken(tokenStr string) (string, string, string) {
+	/**
+	*	token: uuid use this uuid to get actual token in cache, if exist => token valid, if not, token expire
+	 */
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv(EnvApiSecretKey)), nil
+	})
+	if err != nil {
+		return "", "", ""
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if ok && token.Valid {
+		return fmt.Sprintf("%v", claims[IdClaimKey]), fmt.Sprintf("%v", claims[UsernameClaimKey]), fmt.Sprintf("%v", claims[RoleClaimKey])
+	}
+	return "", "", ""
+}

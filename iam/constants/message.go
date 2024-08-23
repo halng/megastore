@@ -2,8 +2,8 @@ package constants
 
 // Message constants
 const (
-	MessageSuccess = "Success"
-	MessageError   = "Something went wrong. Please try again later."
+	MessageSuccess       = "Success"
+	MessageErrorBindJson = "Please check your input. Something went wrong"
 
 	BadRequest          = "Bad Request"
 	Unauthorized        = "Unauthorized"

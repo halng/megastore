@@ -8,7 +8,7 @@ type ResDTO struct {
 }
 
 type ErrorDTO struct {
-	Message string `json:"msg"`
+	Message any `json:"msg"`
 }
 
 func GetResponseDTO(code int, data any, err ErrorDTO) any {
@@ -23,11 +23,11 @@ func GetResponseDTO(code int, data any, err ErrorDTO) any {
 }
 
 type RegisterRequest struct {
-	Username  string `json:"username"`
-	Password  string `json:"password"`
-	Email     string `json:"email"`
-	FirstName string `json:"firstname"`
-	LastName  string `json:"lastname"`
+	Username  string `json:"username" validate:"required"`
+	Password  string `json:"password" validate:"required"`
+	Email     string `json:"email" validate:"required,email"`
+	FirstName string `json:"firstname" validate:"required"`
+	LastName  string `json:"lastname" validate:"required"`
 }
 
 type LoginRequest struct {
