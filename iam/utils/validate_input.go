@@ -8,8 +8,7 @@ import (
 )
 
 func ValidateInput(dataSet any) (bool, map[string]string) {
-	var validate *validator.Validate
-	validate = validator.New()
+	var validate = validator.New()
 
 	err := validate.Struct(dataSet)
 
@@ -31,22 +30,16 @@ func ValidateInput(dataSet any) (bool, map[string]string) {
 			switch err.Tag() {
 			case "required":
 				msg = "The " + name + " field is required"
-				break
 			case "email":
 				msg = "The " + name + " field must be a valid email address"
-				break
 			case "gte":
 				msg = "The " + name + " field must be greater than or equal to " + err.Param()
-				break
 			case "lte":
 				msg = "The " + name + " field must be less than or equal to " + err.Param()
-				break
 			case "eqfield":
 				msg = "The " + name + " field must be equal to " + err.Param()
-				break
 			default:
 				msg = "The " + name + " field is invalid"
-				break
 			}
 			var idxStr = strconv.Itoa(countError)
 			errors[idxStr] = msg

@@ -63,7 +63,7 @@ func Login(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&userInput); err != nil {
 		log.Printf("Value is incorrect. %v", err)
-		c.JSON(http.StatusBadRequest, dto.GetResponseDTO(404, nil, dto.ErrorDTO{constants.MessageErrorBindJson}))
+		ResponseErrorHandler(c, http.StatusBadRequest, constants.MessageErrorBindJson)
 		return
 	}
 
@@ -72,19 +72,18 @@ func Login(c *gin.Context) {
 
 	if account, err = models.GetAccountByEmailOrUsername(userInput.Email, userInput.Username); err != nil {
 		log.Printf("Account donesn't exits")
-		c.JSON(http.StatusNotFound, dto.GetResponseDTO(404, nil, dto.ErrorDTO{constants.AccountNotFound}))
+		ResponseErrorHandler(c, http.StatusNotFound, constants.AccountNotFound)
 		return
 	}
 
 	if !account.ComparePassword(userInput.Password) {
 		log.Print("Password doesn't match")
-		c.JSON(http.StatusUnauthorized, dto.GetResponseDTO(401, nil, dto.ErrorDTO{Message: constants.PasswordNotMatch}))
+		ResponseErrorHandler(c, http.StatusUnauthorized, constants.PasswordNotMatch)
 		return
 	}
 
 	token := account.GenerateAccessToken()
-
-	c.JSON(http.StatusOK, dto.GetResponseDTO(200, dto.LoginResponse{ApiToken: token}, dto.ErrorDTO{}))
+	ResponseSuccessHandler(c, http.StatusOK, dto.LoginResponse{ApiToken: token})
 
 }
 
