@@ -32,6 +32,7 @@ jobs:
           working-directory: ./iam
       - name: run tests and generate coverage
         run: go test -coverprofile coverage.out ./{handlers,utils}
+        working-directory: ./iam
       - name: run test and generate report
         run: go test -json ./{handlers,utils} > test-report.out
         working-directory: ./iam
