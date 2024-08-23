@@ -8,6 +8,7 @@ import (
 	"github.com/tanhaok/MyStore/dto"
 	"github.com/tanhaok/MyStore/kafka"
 	"github.com/tanhaok/MyStore/models"
+	"github.com/tanhaok/MyStore/utils"
 	"log"
 	"net/http"
 )
@@ -19,12 +20,17 @@ func Register(c *gin.Context) {
 	var userInput dto.RegisterRequest
 
 	if err := c.ShouldBindJSON(&userInput); err != nil {
-		c.JSON(http.StatusBadRequest, dto.GetResponseDTO(400, nil, dto.ErrorDTO{Message: constants.MessageError}))
+		ResponseErrorHandler(c, http.StatusBadRequest, constants.MessageErrorBindJson)
+		return
+	}
+
+	if ok, errors := utils.ValidateInput(userInput); !ok {
+		ResponseErrorHandler(c, http.StatusBadRequest, errors)
 		return
 	}
 
 	if models.ExistsByEmailOrUsername(userInput.Email, userInput.Username) {
-		c.JSON(http.StatusBadRequest, dto.GetResponseDTO(400, nil, dto.ErrorDTO{Message: fmt.Sprintf(constants.AccountExists, userInput.Email, userInput.Username)}))
+		ResponseErrorHandler(c, http.StatusBadRequest, fmt.Sprintf(constants.AccountExists, userInput.Email, userInput.Username))
 		return
 	}
 
@@ -37,7 +43,8 @@ func Register(c *gin.Context) {
 	_, err := account.SaveAccount()
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, dto.GetResponseDTO(400, nil, dto.ErrorDTO{Message: constants.MessageError}))
+		log.Printf("Error when saving account. %v", err)
+		ResponseErrorHandler(c, http.StatusBadRequest, constants.MessageErrorBindJson)
 		return
 	}
 
@@ -47,7 +54,7 @@ func Register(c *gin.Context) {
 
 	kafka.PushMessageNewUser(serializedMessage)
 
-	c.JSON(http.StatusCreated, dto.GetResponseDTO(201, nil, dto.ErrorDTO{}))
+	ResponseSuccessHandler(c, http.StatusCreated, nil)
 }
 
 // Login verify user credentials and return uuid pair with token saved in redis
@@ -56,7 +63,7 @@ func Login(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&userInput); err != nil {
 		log.Printf("Value is incorrect. %v", err)
-		c.JSON(http.StatusBadRequest, dto.GetResponseDTO(404, nil, dto.ErrorDTO{constants.MessageError}))
+		c.JSON(http.StatusBadRequest, dto.GetResponseDTO(404, nil, dto.ErrorDTO{constants.MessageErrorBindJson}))
 		return
 	}
 
