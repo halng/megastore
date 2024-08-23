@@ -30,8 +30,11 @@ jobs:
         uses: golangci/golangci-lint-action@v6.1.0
         with:
           working-directory: ./iam
-      - name: run tests
-        run: go test -coverprofile cover.out ./{handlers,utils}
+      - name: run tests and generate coverage
+        run: go test -coverprofile coverage.out ./{handlers,utils}
+        working-directory: ./iam
+      - name: run test and generate report
+        run: go test -json ./{handlers,utils} > test-report.out
         working-directory: ./iam
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
