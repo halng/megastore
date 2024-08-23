@@ -26,7 +26,8 @@ func ServeRequest(router *gin.Engine, method string, path string, body string) (
 }
 
 func StartPostgresDBInDocker() {
-
+	// Start Postgres DB in Docker
+	// Empty for now until I familiarize myself with testcontainers
 }
 
 func StartDB() {

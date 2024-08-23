@@ -13,10 +13,13 @@ type TestStruct struct {
 
 // TestValidateInputTest tests the ValidateInput function
 func TestValidateInputTest(t *testing.T) {
+	emailMock := "test@example.com"
+	userMock := "testuser"
+
 	t.Run("Valid input", func(t *testing.T) {
 		input := TestStruct{
-			Email:    "test@example.com",
-			Username: "testuser",
+			Email:    emailMock,
+			Username: userMock,
 			Age:      30,
 		}
 		valid, errors := ValidateInput(input)
@@ -26,7 +29,7 @@ func TestValidateInputTest(t *testing.T) {
 
 	t.Run("Missing required field", func(t *testing.T) {
 		input := TestStruct{
-			Email:    "test@example.com",
+			Email:    emailMock,
 			Username: "",
 			Age:      30,
 		}
@@ -38,7 +41,7 @@ func TestValidateInputTest(t *testing.T) {
 	t.Run("Invalid email format", func(t *testing.T) {
 		input := TestStruct{
 			Email:    "invalid-email",
-			Username: "testuser",
+			Username: userMock,
 			Age:      30,
 		}
 		valid, errors := ValidateInput(input)
@@ -48,8 +51,8 @@ func TestValidateInputTest(t *testing.T) {
 
 	t.Run("Field value less than minimum", func(t *testing.T) {
 		input := TestStruct{
-			Email:    "test@example.com",
-			Username: "testuser",
+			Email:    emailMock,
+			Username: userMock,
 			Age:      17,
 		}
 		valid, errors := ValidateInput(input)
@@ -59,8 +62,8 @@ func TestValidateInputTest(t *testing.T) {
 
 	t.Run("Field value greater than maximum", func(t *testing.T) {
 		input := TestStruct{
-			Email:    "test@example.com",
-			Username: "testuser",
+			Email:    emailMock,
+			Username: userMock,
 			Age:      66,
 		}
 		valid, errors := ValidateInput(input)

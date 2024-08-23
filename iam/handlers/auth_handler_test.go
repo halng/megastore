@@ -8,15 +8,16 @@ import (
 )
 
 func TestRegister(t *testing.T) {
+	urlPath := "/api/v1/register"
 
 	t.Run("when email is invalid and missing field", func(t *testing.T) {
 		router := test.SetUpRouter()
-		router.POST("/api/v1/register", Register)
+		router.POST(urlPath, Register)
 
 		// Act
 		invalidUserInput := `{"email":"this-is-not-valid-email","username": "changeme", "password": "changeme", "lastname": "changeme"}`
 
-		code, res := test.ServeRequest(router, "POST", "/api/v1/register", invalidUserInput)
+		code, res := test.ServeRequest(router, "POST", urlPath, invalidUserInput)
 
 		if code != http.StatusBadRequest {
 			t.Errorf("Expected status code %d but got %d", http.StatusBadRequest, code)
@@ -29,11 +30,11 @@ func TestRegister(t *testing.T) {
 	t.Run("when data is unable to bind to json", func(t *testing.T) {
 		// Arrange
 		router := test.SetUpRouter()
-		router.POST("/api/v1/register", Register)
+		router.POST(urlPath, Register)
 
 		// Act
 		invalidUserInput := `{"email":"this-is-not-valid-email","userName": "changeme", passWord": "changeme", "lastname": "changeme"}`
-		code, res := test.ServeRequest(router, "POST", "/api/v1/register", invalidUserInput)
+		code, res := test.ServeRequest(router, "POST", urlPath, invalidUserInput)
 
 		// Assert
 		if code != http.StatusBadRequest {
