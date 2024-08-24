@@ -6,7 +6,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
-	"log"
+	"github.com/tanhaok/MyStore/logging"
 	"os"
 	"strconv"
 )
@@ -25,7 +25,7 @@ func ConnectDB() {
 
 	err = godotenv.Load(".env")
 	if err != nil {
-		log.Fatalf("Error loading .env file")
+		logging.LOGGER.Error("Error loading .env file")
 	}
 
 	/**

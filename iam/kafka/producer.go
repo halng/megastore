@@ -3,6 +3,8 @@ package kafka
 import (
 	"fmt"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/tanhaok/MyStore/logging"
+	"go.uber.org/zap"
 )
 
 var Producer *kafka.Producer
@@ -12,7 +14,7 @@ func InitializeKafkaProducer(bootStrapServer string) error {
 	var err error
 	Producer, err = kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": bootStrapServer})
 	if err != nil {
-		fmt.Println("Cannot create new producer. Terminate...")
+		logging.LOGGER.Error("Cannot create new producer. Terminate...", zap.Any("error", err))
 		return err
 	}
 	//defer Producer.Close()
@@ -28,7 +30,7 @@ func PushMessageNewUser(message string) {
 	deliveryChan := make(chan kafka.Event)
 	err := Producer.Produce(kafkaMessage, deliveryChan)
 	if err != nil {
-		fmt.Println("Cannot produce message")
+		logging.LOGGER.Error("Cannot produce message")
 		return
 	}
 
@@ -36,10 +38,10 @@ func PushMessageNewUser(message string) {
 	m := e.(*kafka.Message)
 
 	if m.TopicPartition.Error != nil {
-		fmt.Printf("Delivery failed: %v\n", m.TopicPartition.Error)
+		logging.LOGGER.Error(fmt.Sprintf("Delivery failed: %v\n", m.TopicPartition.Error))
 	} else {
-		fmt.Printf("Delivered message to topic %s [%d] at offset %v\n",
-			*m.TopicPartition.Topic, m.TopicPartition.Partition, m.TopicPartition.Offset)
+		logging.LOGGER.Info(fmt.Sprintf("Delivered message to topic %s [%d] at offset %v\n",
+			*m.TopicPartition.Topic, m.TopicPartition.Partition, m.TopicPartition.Offset))
 	}
 
 	close(deliveryChan)

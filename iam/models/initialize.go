@@ -1,10 +1,11 @@
 package models
 
 import (
-	"fmt"
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/tanhaok/MyStore/db"
+	"github.com/tanhaok/MyStore/logging"
+	"go.uber.org/zap"
 )
 
 func Initialize() {
@@ -21,10 +22,12 @@ func InitRole(db *gorm.DB) {
 	for _, roleName := range roles {
 		role := Role{ID: uuid.New(), Name: roleName}
 		if err := db.Create(&role).Error; err != nil {
-			fmt.Printf("Error creating role %s: %v", roleName, err)
+			logging.LOGGER.Error("Error occurred when creating role",
+				zap.String("roleName", roleName),
+				zap.Any("err", err))
 
 		} else {
-			fmt.Printf("Role %s created successfully", roleName)
+			logging.LOGGER.Info("Role created successfully", zap.String("roleName", roleName))
 		}
 	}
 

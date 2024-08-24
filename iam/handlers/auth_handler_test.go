@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/tanhaok/MyStore/test"
 	"net/http"
+	"os"
 	"testing"
 )
 
@@ -45,4 +46,11 @@ func TestRegister(t *testing.T) {
 		assert.Equal(t, expectedResponse, res)
 		assert.Equal(t, 400, code)
 	})
+}
+
+func TestMain(m *testing.M) {
+	test.SetupContainers()
+	code := m.Run()
+	test.TearDownContainers()
+	os.Exit(code)
 }

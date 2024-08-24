@@ -1,15 +1,15 @@
 package test
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/tanhaok/MyStore/db"
-	"github.com/tanhaok/MyStore/models"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
-	"testing"
 )
 
 func SetUpRouter() *gin.Engine {
@@ -25,24 +25,77 @@ func ServeRequest(router *gin.Engine, method string, path string, body string) (
 	return w.Code, string(res)
 }
 
-func StartPostgresDBInDocker() {
-	// Start Postgres DB in Docker
-	// Empty for now until I familiarize myself with testcontainers
+var (
+	PostgresContainer testcontainers.Container
+	RedisContainer    testcontainers.Container
+	KafkaContainer    testcontainers.Container
+)
+
+func SetupContainers() {
+	ctx := context.Background()
+
+	// Setup PostgreSQL container
+	postgresReq := testcontainers.ContainerRequest{
+		Image:        "postgres:13",
+		ExposedPorts: []string{"5432/tcp"},
+		Env: map[string]string{
+			"POSTGRES_USER":     "testuser",
+			"POSTGRES_PASSWORD": "testpassword",
+			"POSTGRES_DB":       "testdb",
+		},
+		WaitingFor: wait.ForListeningPort("5432/tcp"),
+	}
+	var err error
+	PostgresContainer, err = testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: postgresReq,
+		Started:          true,
+	})
+	if err != nil {
+		log.Fatalf("Failed to start PostgreSQL container: %v", err)
+	}
+
+	// Setup Redis container
+	redisReq := testcontainers.ContainerRequest{
+		Image:        "redis:6",
+		ExposedPorts: []string{"6379/tcp"},
+		WaitingFor:   wait.ForListeningPort("6379/tcp"),
+	}
+	RedisContainer, err = testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: redisReq,
+		Started:          true,
+	})
+	if err != nil {
+		log.Fatalf("Failed to start Redis container: %v", err)
+	}
+
+	// Setup Kafka container
+	kafkaReq := testcontainers.ContainerRequest{
+		Image:        "wurstmeister/kafka:2.13-2.6.0",
+		ExposedPorts: []string{"9092/tcp"},
+		Env: map[string]string{
+			"KAFKA_ZOOKEEPER_CONNECT":                "zookeeper:2181",
+			"KAFKA_ADVERTISED_LISTENERS":             "PLAINTEXT://localhost:9092",
+			"KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR": "1",
+		},
+		WaitingFor: wait.ForListeningPort("9092/tcp"),
+	}
+	KafkaContainer, err = testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: kafkaReq,
+		Started:          true,
+	})
+	if err != nil {
+		log.Fatalf("Failed to start Kafka container: %v", err)
+	}
 }
 
-func StartDB() {
-	// Start DB
-	db.ConnectDB()
-	models.Initialize()
-}
-
-func TestAll(m *testing.M) {
-	//StartDB()
-	// additional setup
-
-	code := m.Run()
-
-	// additional teardown
-
-	os.Exit(code)
+func TearDownContainers() {
+	if err := PostgresContainer.Terminate(context.Background()); err != nil {
+		log.Fatalf("Failed to terminate PostgreSQL container: %v", err)
+	}
+	if err := RedisContainer.Terminate(context.Background()); err != nil {
+		log.Fatalf("Failed to terminate Redis container: %v", err)
+	}
+	if err := KafkaContainer.Terminate(context.Background()); err != nil {
+		log.Fatalf("Failed to terminate Kafka container: %v", err)
+	}
 }

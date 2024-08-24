@@ -11,6 +11,7 @@ const (
 	NotFound            = "Not Found"
 	Conflict            = "Conflict"
 	InternalServerError = "Internal Server Error"
+	TokenNotFount       = "Your login session has expired. Please login again"
 
 	// account constant
 	AccountCreated   = "Account created successfully"
@@ -20,4 +21,10 @@ const (
 	DefaultCreator   = "REGISTER"
 	AccountExists    = "Account with username: %s or email: %s already exists"
 	PasswordNotMatch = "Password doesn't match"
+
+	// define key
+	ApiTokenRequestHeader  = "X-API-SECRET-TOKEN"
+	ApiUserIdRequestHeader = "X-API-USER-ID"
+	ApiUserRequestHeader   = "X-API-USER"
+	ApiUserRoles           = "X-API-USER-ROLES"
 )

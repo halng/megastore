@@ -28,14 +28,16 @@ func TestGenerateJWT(t *testing.T) {
 		}
 
 		// Test ExtractDataFromToken
-		idFromToken, usernameFromToken, roleFromToken := ExtractDataFromToken(token)
+		isValid, idFromToken, usernameFromToken, roleFromToken := ExtractDataFromToken(token)
+		assert.True(t, isValid)
 		assert.Equal(t, id, idFromToken)
 		assert.Equal(t, username, usernameFromToken)
 		assert.Equal(t, "DEFAULT", roleFromToken)
 	})
 	t.Run("Extract data from invalid token", func(t *testing.T) {
 		token := "invalid.bearer.token"
-		idFromToken, usernameFromToken, roleFromToken := ExtractDataFromToken(token)
+		isValid, idFromToken, usernameFromToken, roleFromToken := ExtractDataFromToken(token)
+		assert.False(t, isValid)
 		assert.Equal(t, "", idFromToken)
 		assert.Equal(t, "", usernameFromToken)
 		assert.Equal(t, "", roleFromToken)
@@ -50,7 +52,8 @@ func TestGenerateJWT(t *testing.T) {
 		tokenStr, _ := token.SignedString([]byte(apiSecret))
 
 		// Test ExtractDataFromToken
-		id, username, role := ExtractDataFromToken(tokenStr)
+		isValid, id, username, role := ExtractDataFromToken(tokenStr)
+		assert.True(t, isValid)
 		assert.Equal(t, "test-id", id)
 		assert.Equal(t, "<nil>", username)
 		assert.Equal(t, "<nil>", role)

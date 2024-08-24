@@ -1,17 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/tanhaok/MyStore/db"
 	"github.com/tanhaok/MyStore/handlers"
 	"github.com/tanhaok/MyStore/kafka"
+	"github.com/tanhaok/MyStore/logging"
 	"github.com/tanhaok/MyStore/models"
-	"log"
 	"os"
 )
 
 func main() {
+	logging.InitLogging()
 
 	// connect database
 	db.ConnectDB()
@@ -21,7 +23,7 @@ func main() {
 
 	err = godotenv.Load(".env")
 	if err != nil {
-		log.Fatalf("Error loading .env file")
+		logging.LOGGER.Error("Error loading .env file")
 	}
 
 	// init kafka server
@@ -43,6 +45,7 @@ func main() {
 	groupV1.GET("/validate", handlers.Validate)
 
 	err = router.Run(":" + port)
+	logging.LOGGER.Info(fmt.Sprintf("Starting web service on port %s", port))
 	if err != nil {
 		return
 	}
