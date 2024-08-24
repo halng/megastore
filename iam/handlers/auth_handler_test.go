@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/tanhaok/MyStore/logging"
 	"github.com/tanhaok/MyStore/test"
 	"net/http"
 	"os"
@@ -50,6 +51,8 @@ func TestRegister(t *testing.T) {
 
 func TestMain(m *testing.M) {
 	test.SetupContainers()
+	logging.InitLogging()
+
 	code := m.Run()
 	test.TearDownContainers()
 	os.Exit(code)
