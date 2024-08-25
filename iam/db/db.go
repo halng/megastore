@@ -6,7 +6,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
-	"log"
 	"os"
 	"strconv"
 )
@@ -23,10 +22,7 @@ var DB DataBase
 func ConnectDB() {
 	var err error
 
-	err = godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+	_ = godotenv.Load(".env")
 
 	/**
 	 * Connect to Postgres

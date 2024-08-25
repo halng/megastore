@@ -46,7 +46,7 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper
     volumes:
-      - zookeeper-data:/var/lib/zookeeper/data:Z
+      - zookeeper-data:/var/lib/zookeeper/data:Z  
       - zookeeper-log:/var/lib/zookeeper/log:Z
     environment:
       ZOOKEEPER_CLIENT_PORT: '2181'

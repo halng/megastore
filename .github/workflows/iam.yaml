@@ -31,14 +31,14 @@ jobs:
         with:
           working-directory: ./iam
       - name: run tests and generate coverage
-        run: go test -coverprofile coverage.out ./{handlers,utils}
+        run: go test -coverprofile coverage.out ./...
         working-directory: ./iam
       - name: run test and generate report
-        run: go test -json ./{handlers,utils} > test-report.out
+        run: go test -json ./... > test-report.out
         working-directory: ./iam
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
-        with:
+        with: 
             projectBaseDir: ./iam
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any

@@ -2,11 +2,12 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/google/uuid"
-	"github.com/tanhaok/MyStore/constants"
-	"github.com/tanhaok/MyStore/db"
-	"github.com/tanhaok/MyStore/dto"
-	"github.com/tanhaok/MyStore/utils"
+	"github.com/tanhaok/megastore/constants"
+	"github.com/tanhaok/megastore/db"
+	"github.com/tanhaok/megastore/dto"
+	"github.com/tanhaok/megastore/utils"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
@@ -77,8 +78,9 @@ func (account *Account) GenerateAccessToken() string {
 		return ""
 	}
 
+	hashedMD := utils.ComputeMD5([]string{account.ID.String()})
 	cacheId := uuid.New().String()
-	err = db.SaveDataToCache(cacheId, jwtToken)
+	err = db.SaveDataToCache(fmt.Sprintf("%s_%s", hashedMD, cacheId), jwtToken)
 
 	if err != nil {
 		log.Printf("Cannot save token in cache")

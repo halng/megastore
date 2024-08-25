@@ -27,21 +27,8 @@ func GenerateJWT(id string, username string) (string, error) {
 	return token.SignedString([]byte(apiSecret))
 }
 
-//
-//// isValidToken will be renamed to getTokenFromCache
-//func isValidToken(tokenStr string) bool {
-//	_, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-//		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-//			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-//		}
-//		return []byte(os.Getenv(EnvApiSecretKey)), nil
-//	})
-//
-//	return err == nil
-//}
-
 // ExtractDataFromToken get data from token
-func ExtractDataFromToken(tokenStr string) (string, string, string) {
+func ExtractDataFromToken(tokenStr string) (bool, string, string, string) {
 	/**
 	*	token: uuid use this uuid to get actual token in cache, if exist => token valid, if not, token expire
 	 */
@@ -49,11 +36,11 @@ func ExtractDataFromToken(tokenStr string) (string, string, string) {
 		return []byte(os.Getenv(EnvApiSecretKey)), nil
 	})
 	if err != nil {
-		return "", "", ""
+		return false, "", "", ""
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
-		return fmt.Sprintf("%v", claims[IdClaimKey]), fmt.Sprintf("%v", claims[UsernameClaimKey]), fmt.Sprintf("%v", claims[RoleClaimKey])
+		return true, fmt.Sprintf("%v", claims[IdClaimKey]), fmt.Sprintf("%v", claims[UsernameClaimKey]), fmt.Sprintf("%v", claims[RoleClaimKey])
 	}
-	return "", "", ""
+	return false, "", "", ""
 }

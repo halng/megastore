@@ -3,12 +3,12 @@ package handlers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/tanhaok/MyStore/constants"
-	"github.com/tanhaok/MyStore/db"
-	"github.com/tanhaok/MyStore/dto"
-	"github.com/tanhaok/MyStore/kafka"
-	"github.com/tanhaok/MyStore/models"
-	"github.com/tanhaok/MyStore/utils"
+	"github.com/tanhaok/megastore/constants"
+	"github.com/tanhaok/megastore/db"
+	"github.com/tanhaok/megastore/dto"
+	"github.com/tanhaok/megastore/kafka"
+	"github.com/tanhaok/megastore/models"
+	"github.com/tanhaok/megastore/utils"
 	"log"
 	"net/http"
 )
@@ -20,17 +20,17 @@ func Register(c *gin.Context) {
 	var userInput dto.RegisterRequest
 
 	if err := c.ShouldBindJSON(&userInput); err != nil {
-		ResponseErrorHandler(c, http.StatusBadRequest, constants.MessageErrorBindJson)
+		ResponseErrorHandler(c, http.StatusBadRequest, constants.MessageErrorBindJson, userInput)
 		return
 	}
 
 	if ok, errors := utils.ValidateInput(userInput); !ok {
-		ResponseErrorHandler(c, http.StatusBadRequest, errors)
+		ResponseErrorHandler(c, http.StatusBadRequest, errors, userInput)
 		return
 	}
 
 	if models.ExistsByEmailOrUsername(userInput.Email, userInput.Username) {
-		ResponseErrorHandler(c, http.StatusBadRequest, fmt.Sprintf(constants.AccountExists, userInput.Email, userInput.Username))
+		ResponseErrorHandler(c, http.StatusBadRequest, fmt.Sprintf(constants.AccountExists, userInput.Email, userInput.Username), userInput)
 		return
 	}
 
@@ -44,7 +44,7 @@ func Register(c *gin.Context) {
 
 	if err != nil {
 		log.Printf("Error when saving account. %v", err)
-		ResponseErrorHandler(c, http.StatusBadRequest, constants.MessageErrorBindJson)
+		ResponseErrorHandler(c, http.StatusBadRequest, constants.MessageErrorBindJson, account)
 		return
 	}
 
@@ -62,8 +62,7 @@ func Login(c *gin.Context) {
 	var userInput dto.LoginRequest
 
 	if err := c.ShouldBindJSON(&userInput); err != nil {
-		log.Printf("Value is incorrect. %v", err)
-		ResponseErrorHandler(c, http.StatusBadRequest, constants.MessageErrorBindJson)
+		ResponseErrorHandler(c, http.StatusBadRequest, constants.MessageErrorBindJson, userInput)
 		return
 	}
 
@@ -71,14 +70,12 @@ func Login(c *gin.Context) {
 	var err error
 
 	if account, err = models.GetAccountByEmailOrUsername(userInput.Email, userInput.Username); err != nil {
-		log.Printf("Account donesn't exits")
-		ResponseErrorHandler(c, http.StatusNotFound, constants.AccountNotFound)
+		ResponseErrorHandler(c, http.StatusNotFound, constants.AccountNotFound, userInput)
 		return
 	}
 
 	if !account.ComparePassword(userInput.Password) {
-		log.Print("Password doesn't match")
-		ResponseErrorHandler(c, http.StatusUnauthorized, constants.PasswordNotMatch)
+		ResponseErrorHandler(c, http.StatusUnauthorized, constants.PasswordNotMatch, userInput)
 		return
 	}
 
@@ -89,6 +86,31 @@ func Login(c *gin.Context) {
 
 // Validate user credentials and return username and role
 func Validate(c *gin.Context) {
-	// validate
+	// get api token from header
+	apiToken := c.GetHeader(constants.ApiTokenRequestHeader)
+	userId := c.GetHeader(constants.ApiUserIdRequestHeader)
+
+	if apiToken == "" || userId == "" {
+		ResponseErrorHandler(c, http.StatusUnauthorized, constants.Unauthorized, apiToken)
+		return
+	}
+
+	// get bearer token from redis
+	hashMD5 := utils.ComputeMD5([]string{userId})
+	accessToken, err := db.GetDataFromKey(fmt.Sprintf("%s_%s", hashMD5, apiToken))
+	if err != nil || accessToken == nil || accessToken == "" {
+		ResponseErrorHandler(c, http.StatusUnauthorized, constants.TokenNotFount, accessToken)
+		return
+	}
+
+	isValidToken, userId, username, role := utils.ExtractDataFromToken(accessToken.(string))
+	if !isValidToken {
+		ResponseErrorHandler(c, http.StatusUnauthorized, constants.TokenNotFount, apiToken)
+		return
+	}
+	ResponseSuccessHandler(c, http.StatusOK, nil)
+	c.Header(constants.ApiUserIdRequestHeader, userId)
+	c.Header(constants.ApiUserRoles, role)
+	c.Header(constants.ApiUserRequestHeader, username)
 
 }
