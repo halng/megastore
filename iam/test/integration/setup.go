@@ -73,7 +73,7 @@ func SetupContainers() {
 		log.Fatalf("Failed to start PostgreSQL container: %v", err)
 	}
 
-	PostgresContainer.Start(ctx)
+	//PostgresContainer.Start(ctx)
 
 	// Setup Redis container
 	redisReq := testcontainers.ContainerRequest{
@@ -92,7 +92,7 @@ func SetupContainers() {
 		log.Fatalf("Failed to start Redis contaner: %v", err)
 	}
 
-	RedisContainer.Start(ctx)
+	//RedisContainer.Start(ctx)
 
 	// set up zookeeper
 	zooKeeper := testcontainers.ContainerRequest{
@@ -114,7 +114,7 @@ func SetupContainers() {
 	if err != nil {
 		log.Fatalf("Failed to start Kafka container: %v", err)
 	}
-	ZooKeeper.Start(ctx)
+	//ZooKeeper.Start(ctx)
 	zookeeperIP, _ := ZooKeeper.ContainerIP(ctx)
 
 	// Setup Kafka container
@@ -149,7 +149,7 @@ func SetupContainers() {
 		log.Fatalf("Failed to create Kafka container: %v", err)
 		return
 	}
-	KafkaContainer.Start(ctx)
+	//KafkaContainer.Start(ctx)
 
 }
 
