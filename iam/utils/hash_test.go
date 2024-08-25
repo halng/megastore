@@ -2,6 +2,7 @@ package utils
 
 import (
 	"github.com/stretchr/testify/assert"
+	utils2 "github.com/tanhaok/MyStore/utils"
 	"testing"
 )
 
@@ -10,7 +11,7 @@ func TestComputeHMAC256(t *testing.T) {
 	email := "changeme@gmail.com"
 
 	// Test HMAC
-	hmac := ComputeHMAC256(username, email)
+	hmac := utils2.ComputeHMAC256(username, email)
 	if hmac == "" {
 		t.Errorf("HMAC is empty")
 	}
@@ -21,5 +22,5 @@ func TestComputeHMAC256(t *testing.T) {
 func TestComputeMD5(t *testing.T) {
 	data := []string{"string_1"}
 	expectedHash := "058eb6ea2bdcc79a6a7208783c8bfb50"
-	assert.Equal(t, expectedHash, ComputeMD5(data))
+	assert.Equal(t, expectedHash, utils2.ComputeMD5(data))
 }

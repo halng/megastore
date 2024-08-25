@@ -2,10 +2,9 @@ package handlers
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/tanhaok/MyStore/logging"
-	"github.com/tanhaok/MyStore/test"
+	handlers2 "github.com/tanhaok/MyStore/handlers"
+	"github.com/tanhaok/MyStore/test/integration"
 	"net/http"
-	"os"
 	"testing"
 )
 
@@ -13,13 +12,13 @@ func TestRegister(t *testing.T) {
 	urlPath := "/api/v1/register"
 
 	t.Run("when email is invalid and missing field", func(t *testing.T) {
-		router := test.SetUpRouter()
-		router.POST(urlPath, Register)
+		router := integration.SetUpRouter()
+		router.POST(urlPath, handlers2.Register)
 
 		// Act
 		invalidUserInput := `{"email":"this-is-not-valid-email","username": "changeme", "password": "changeme", "lastname": "changeme"}`
 
-		code, res := test.ServeRequest(router, "POST", urlPath, invalidUserInput)
+		code, res := integration.ServeRequest(router, "POST", urlPath, invalidUserInput)
 
 		if code != http.StatusBadRequest {
 			t.Errorf("Expected status code %d but got %d", http.StatusBadRequest, code)
@@ -31,12 +30,12 @@ func TestRegister(t *testing.T) {
 	})
 	t.Run("when data is unable to bind to json", func(t *testing.T) {
 		// Arrange
-		router := test.SetUpRouter()
-		router.POST(urlPath, Register)
+		router := integration.SetUpRouter()
+		router.POST(urlPath, handlers2.Register)
 
 		// Act
 		invalidUserInput := `{"email":"this-is-not-valid-email","userName": "changeme", passWord": "changeme", "lastname": "changeme"}`
-		code, res := test.ServeRequest(router, "POST", urlPath, invalidUserInput)
+		code, res := integration.ServeRequest(router, "POST", urlPath, invalidUserInput)
 
 		// Assert
 		if code != http.StatusBadRequest {
@@ -47,13 +46,4 @@ func TestRegister(t *testing.T) {
 		assert.Equal(t, expectedResponse, res)
 		assert.Equal(t, 400, code)
 	})
-}
-
-func TestMain(m *testing.M) {
-	test.SetupContainers()
-	logging.InitLogging()
-
-	code := m.Run()
-	test.TearDownContainers()
-	os.Exit(code)
 }
