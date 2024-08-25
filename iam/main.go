@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/tanhaok/MyStore/db"
-	"github.com/tanhaok/MyStore/handlers"
-	"github.com/tanhaok/MyStore/kafka"
-	"github.com/tanhaok/MyStore/logging"
-	"github.com/tanhaok/MyStore/models"
+	"github.com/tanhaok/megastore/db"
+	"github.com/tanhaok/megastore/handlers"
+	"github.com/tanhaok/megastore/kafka"
+	"github.com/tanhaok/megastore/logging"
+	"github.com/tanhaok/megastore/models"
 	"os"
 )
 
@@ -21,10 +21,7 @@ func main() {
 
 	var err error
 
-	err = godotenv.Load(".env")
-	if err != nil {
-		logging.LOGGER.Error("Error loading .env file")
-	}
+	_ = godotenv.Load(".env")
 
 	// init kafka server
 	bootstrapServer := os.Getenv("KAFKA_HOST")

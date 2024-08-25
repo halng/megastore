@@ -3,8 +3,8 @@ package models
 import (
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
-	"github.com/tanhaok/MyStore/db"
-	"github.com/tanhaok/MyStore/logging"
+	"github.com/tanhaok/megastore/db"
+	"github.com/tanhaok/megastore/logging"
 	"go.uber.org/zap"
 )
 

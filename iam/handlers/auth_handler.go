@@ -3,12 +3,12 @@ package handlers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/tanhaok/MyStore/constants"
-	"github.com/tanhaok/MyStore/db"
-	"github.com/tanhaok/MyStore/dto"
-	"github.com/tanhaok/MyStore/kafka"
-	"github.com/tanhaok/MyStore/models"
-	"github.com/tanhaok/MyStore/utils"
+	"github.com/tanhaok/megastore/constants"
+	"github.com/tanhaok/megastore/db"
+	"github.com/tanhaok/megastore/dto"
+	"github.com/tanhaok/megastore/kafka"
+	"github.com/tanhaok/megastore/models"
+	"github.com/tanhaok/megastore/utils"
 	"log"
 	"net/http"
 )

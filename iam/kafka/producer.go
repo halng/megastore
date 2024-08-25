@@ -3,12 +3,12 @@ package kafka
 import (
 	"fmt"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"github.com/tanhaok/MyStore/logging"
+	"github.com/tanhaok/megastore/logging"
 	"go.uber.org/zap"
 )
 
 var Producer *kafka.Producer
-var newUserTopic = "notification.active-new-user"
+var NewUserTopic = "notification.active-new-user"
 
 func InitializeKafkaProducer(bootStrapServer string) error {
 	var err error
@@ -23,7 +23,7 @@ func InitializeKafkaProducer(bootStrapServer string) error {
 
 func PushMessageNewUser(message string) {
 	kafkaMessage := &kafka.Message{
-		TopicPartition: kafka.TopicPartition{Topic: &newUserTopic, Partition: kafka.PartitionAny},
+		TopicPartition: kafka.TopicPartition{Topic: &NewUserTopic, Partition: kafka.PartitionAny},
 		Value:          []byte(message),
 	}
 

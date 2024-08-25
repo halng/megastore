@@ -1,4 +1,4 @@
-module github.com/tanhaok/MyStore
+module github.com/tanhaok/megastore
 
 go 1.22
 
