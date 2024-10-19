@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/tanhaok/megastore/db"
@@ -34,7 +35,15 @@ func main() {
 
 	router := gin.Default()
 
-	groupV1 := router.Group("/api/v1")
+	// set up cors origin
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		AllowCredentials: true,
+	}))
+
+	groupV1 := router.Group("/api/v1/iam")
 
 	// routes
 	groupV1.POST("/login", handlers.Login)

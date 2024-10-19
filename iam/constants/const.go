@@ -20,7 +20,7 @@ const (
 	AccountDeleted   = "Account deleted successfully"
 	DefaultCreator   = "REGISTER"
 	AccountExists    = "Account with username: %s or email: %s already exists"
-	PasswordNotMatch = "Password doesn't match"
+	PasswordNotMatch = "Invalid credentials"
 
 	// define key
 	ApiTokenRequestHeader  = "X-API-SECRET-TOKEN"

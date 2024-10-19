@@ -97,7 +97,7 @@ func TestAuthHandler(t *testing.T) {
 		code, res := integration.ServeRequest(router, "POST", urlPathLogin, jsonLoginRequest)
 
 		assert.Equal(t, code, http.StatusUnauthorized)
-		assert.Equal(t, res, `{"code":401,"error":"Password doesn't match","status":"ERROR"}`)
+		assert.Equal(t, res, `{"code":401,"error":"Invalid credentials","status":"ERROR"}`)
 
 	})
 	//t.Run("Login: when account exist and password is match", func(t *testing.T) {
