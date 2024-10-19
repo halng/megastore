@@ -16,6 +16,7 @@ import (
 // ========================= Functions =========================
 
 // Register new account
+// Todo: change to create new account. -> Only user with role admin can create new account
 func Register(c *gin.Context) {
 	var userInput dto.RegisterRequest
 
@@ -69,7 +70,7 @@ func Login(c *gin.Context) {
 	var account models.Account
 	var err error
 
-	if account, err = models.GetAccountByEmailOrUsername(userInput.Email, userInput.Username); err != nil {
+	if account, err = models.GetAccountByUsername(userInput.Username); err != nil {
 		ResponseErrorHandler(c, http.StatusNotFound, constants.AccountNotFound, userInput)
 		return
 	}

@@ -6,17 +6,20 @@ import (
 	"github.com/tanhaok/megastore/db"
 	"github.com/tanhaok/megastore/logging"
 	"go.uber.org/zap"
+	"os"
 )
 
 func Initialize() {
 	DB := db.DB
 	DB.Postgres.AutoMigrate(&Account{})
 	DB.Postgres.AutoMigrate(&Role{})
-	InitRole(DB.Postgres)
+	initRole(DB.Postgres)
+	initMasterUser()
+
 }
 
 // InitRole auto create roles when the app starts
-func InitRole(db *gorm.DB) {
+func initRole(db *gorm.DB) {
 	roles := []string{RoleAnonymous, RoleAdmin, RoleStaff, RoleUser, RoleSuperAdmin}
 
 	for _, roleName := range roles {
@@ -31,4 +34,21 @@ func InitRole(db *gorm.DB) {
 		}
 	}
 
+}
+
+func initMasterUser() {
+	masterUsername := os.Getenv("MASTER_USERNAME")
+	masterPassword := os.Getenv("MASTER_PASSWORD")
+	masterEmail := os.Getenv("MASTER_EMAIL")
+	masterFirstName := os.Getenv("MASTER_FIRST_NAME")
+	masterLastName := os.Getenv("MASTER_LAST_NAME")
+
+	masterAccount := Account{Username: masterUsername, Password: masterPassword, Email: masterEmail, FirstName: masterFirstName, LastName: masterLastName}
+	_, err := masterAccount.SaveAccount()
+	if err != nil {
+		logging.LOGGER.Error("Cannot create master account", zap.Any("error", err))
+		panic("Cannot create master account")
+	}
+
+	logging.LOGGER.Info("Master account created successfully")
 }
