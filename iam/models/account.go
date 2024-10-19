@@ -60,9 +60,9 @@ func ExistsByEmailOrUsername(email string, username string) bool {
 	return count > 0
 }
 
-func GetAccountByEmailOrUsername(email string, username string) (Account, error) {
+func GetAccountByUsername(username string) (Account, error) {
 	var account Account
-	err := db.DB.Postgres.Model(&Account{}).Where("email = ? OR username = ?", email, username).Take(&account).Error
+	err := db.DB.Postgres.Model(&Account{}).Where(" username = ?", username).Take(&account).Error
 	return account, err
 }
 

@@ -1,0 +1,43 @@
+name: ADMIN - CI
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "admin/**"
+      - ".github/workflows/admin.yaml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "admin/**"
+      - ".github/workflows/admin.yaml"
+
+jobs:
+  build:
+    name: Build and Analyze
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones should be
+      - name: set up angular
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20.9.0"
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./admin
+      - name: Lint
+        run: npm run lint
+        working-directory: ./admin
+      - name: Run tests
+        run: npm run test-ci
+        working-directory: ./admin
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: ./admin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_ADMIN_UI }}

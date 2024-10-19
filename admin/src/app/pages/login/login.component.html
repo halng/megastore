@@ -1,25 +1,38 @@
 <div class="login-container">
-  <div class="login-info">
+  <div class="login-banner">
     <img src="dashboard.jpeg" alt="banner" />
   </div>
-  <div class="login-left">
-    <form>
-      <label for="username">Username</label>
+  <div class="login-info">
+    <mat-form-field>
+      <mat-label>Enter your username</mat-label>
+      <input matInput [type]="'text'" [(ngModel)]="username" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Enter your password</mat-label>
       <input
-        type="username"
-        id="username"
-        name="username"
-        placeholder="your username"
+        matInput
+        [type]="hide() ? 'password' : 'text'"
+        [(ngModel)]="password"
       />
-      <label for="password">Password</label>
-      <input
-        type="password"
-        id="password"
-        name="password"
-        placeholder="******"
-      />
-      <button type="submit" class="btn btn-signin">Sign In</button>
-    </form>
+      <button
+        mat-icon-button
+        matSuffix
+        (click)="onClickHidePassword($event)"
+        [attr.aria-label]="'Hide password'"
+        [attr.aria-pressed]="hide()"
+      >
+        <mat-icon>{{ hide() ? "visibility_off" : "visibility" }}</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <button
+      mat-flat-button
+      type="submit"
+      class="btn btn-signin"
+      (click)="onSubmitForm($event)"
+    >
+      Sign In
+    </button>
     <p><a href="#">Forgot password?</a></p>
   </div>
 </div>
