@@ -186,6 +186,11 @@ func SetupTestServer() {
 	os.Setenv("REDIS_HOST", redisIP)
 	os.Setenv("REDIS_DB", "0")
 	os.Setenv("REDIS_PASSWORD", "")
+	os.Setenv("MASTER_USERNAME", "changeme")
+	os.Setenv("MASTER_PASSWORD", "changeme")
+	os.Setenv("MASTER_EMAIL", "changeme@gmail.com")
+	os.Setenv("MASTER_FIRST_NAME", "changeme")
+	os.Setenv("MASTER_LAST_NAME", "changeme")
 
 	err := kafka2.InitializeKafkaProducer(kafkaBootStrapServer)
 	if err != nil {

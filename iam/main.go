@@ -5,10 +5,12 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/tanhaok/megastore/constants"
 	"github.com/tanhaok/megastore/db"
 	"github.com/tanhaok/megastore/handlers"
 	"github.com/tanhaok/megastore/kafka"
 	"github.com/tanhaok/megastore/logging"
+	"github.com/tanhaok/megastore/middleware"
 	"github.com/tanhaok/megastore/models"
 	"os"
 )
@@ -39,7 +41,7 @@ func main() {
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", constants.ApiTokenRequestHeader, constants.ApiUserIdRequestHeader},
 		AllowCredentials: true,
 	}))
 
@@ -47,7 +49,7 @@ func main() {
 
 	// routes
 	groupV1.POST("/login", handlers.Login)
-	groupV1.POST("/register", handlers.Register)
+	groupV1.POST("/create-staff", middleware.ValidateRequest, handlers.CreateStaff)
 	groupV1.GET("/validate", handlers.Validate)
 
 	err = router.Run(":" + port)

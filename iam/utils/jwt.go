@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"os"
 )
@@ -14,13 +13,13 @@ var (
 	TokenRequestKey  = "API"
 )
 
-func GenerateJWT(id string, username string) (string, error) {
+func GenerateJWT(id string, username string, role string) (string, error) {
 	apiSecret := os.Getenv(EnvApiSecretKey)
 
 	claims := jwt.MapClaims{}
 	claims[IdClaimKey] = id
 	claims[UsernameClaimKey] = username
-	claims[RoleClaimKey] = "DEFAULT" // TODO: change this whenever mapping between account and role created
+	claims[RoleClaimKey] = role
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
@@ -39,8 +38,8 @@ func ExtractDataFromToken(tokenStr string) (bool, string, string, string) {
 		return false, "", "", ""
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
-	if ok && token.Valid {
-		return true, fmt.Sprintf("%v", claims[IdClaimKey]), fmt.Sprintf("%v", claims[UsernameClaimKey]), fmt.Sprintf("%v", claims[RoleClaimKey])
+	if ok && token.Valid && claims[IdClaimKey] != nil && claims[UsernameClaimKey] != nil && claims[RoleClaimKey] != nil {
+		return true, claims[IdClaimKey].(string), claims[UsernameClaimKey].(string), claims[RoleClaimKey].(string)
 	}
 	return false, "", "", ""
 }

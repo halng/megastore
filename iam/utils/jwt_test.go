@@ -16,9 +16,10 @@ func TestGenerateJWT(t *testing.T) {
 	t.Run("Create and extract JWT", func(t *testing.T) {
 		username := "changeme"
 		id := "XXX-YYY-ZZZ"
+		role := "super_admin"
 
 		// Test JWT
-		token, err := GenerateJWT(id, username)
+		token, err := GenerateJWT(id, username, role)
 		if err != nil {
 			t.Errorf("Error generating JWT: %v", err)
 		}
@@ -32,7 +33,7 @@ func TestGenerateJWT(t *testing.T) {
 		assert.True(t, isValid)
 		assert.Equal(t, id, idFromToken)
 		assert.Equal(t, username, usernameFromToken)
-		assert.Equal(t, "DEFAULT", roleFromToken)
+		assert.Equal(t, "super_admin", roleFromToken)
 	})
 	t.Run("Extract data from invalid token", func(t *testing.T) {
 		token := "invalid.bearer.token"
@@ -53,9 +54,9 @@ func TestGenerateJWT(t *testing.T) {
 
 		// Test ExtractDataFromToken
 		isValid, id, username, role := ExtractDataFromToken(tokenStr)
-		assert.True(t, isValid)
-		assert.Equal(t, "test-id", id)
-		assert.Equal(t, "<nil>", username)
-		assert.Equal(t, "<nil>", role)
+		assert.False(t, isValid)
+		assert.Equal(t, "", id)
+		assert.Equal(t, "", username)
+		assert.Equal(t, "", role)
 	})
 }

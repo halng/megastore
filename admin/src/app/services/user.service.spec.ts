@@ -6,6 +6,7 @@ import {
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { UserCreate } from '../types';
 
 describe('UserService', () => {
   let service: UserService;
@@ -74,20 +75,39 @@ describe('UserService', () => {
     expect(req.request.method).toBe('POST');
     req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
   });
+  
+  it('should create staff successfully', () => {
+    const mockData: UserCreate = { username: 'testuser', email: 'test@example.com', firstName: 'Test', lastName: 'User' };
+    const mockResponse = { success: true };
 
-  it('should set API token', () => {
-    const token = '12345';
-    service.setApiToken(token);
-    expect(service.apiToken).toBe(token);
+    localStorage.setItem(service.authKey, JSON.stringify({ 'api-token': 'test-token', 'id': 'test-id' }));
+
+    service.createStaff(mockData).subscribe(response => {
+      expect(response).toEqual(mockResponse);
+    });
+
+    const req = httpMock.expectOne(`${service.BASE_URL}/create-staff`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.headers.get('X-API-SECRET-TOKEN')).toBe('test-token');
+    expect(req.request.headers.get('X-API-USER-ID')).toBe('test-id');
+    req.flush(mockResponse);
   });
 
-  it('should return true if logged in', () => {
-    service.setApiToken('12345');
-    expect(service.isLogin()).toBeTrue();
+  it('should throw error if no auth token found', () => {
+    localStorage.removeItem(service.authKey);
+
+    expect(() => service.createStaff({ username: 'testuser', email: 'test@example.com', firstName: 'Test', lastName: 'User' }))
+      .toThrow(new Error('No auth token found'));
   });
 
-  it('should return false if not logged in', () => {
-    service.setApiToken('');
-    expect(service.isLogin()).toBeFalse();
+  it('should remove auth keys on logout', () => {
+    spyOn(localStorage, 'removeItem');
+
+    service.logout();
+
+    expect(localStorage.removeItem).toHaveBeenCalledWith(service.authKey);
+    expect(localStorage.removeItem).toHaveBeenCalledWith(service.authExpireKey);
   });
+
+  
 });

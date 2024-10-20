@@ -30,9 +30,10 @@ func ResponseErrorHandler(c *gin.Context, code int, err interface{}, traceData a
 		zap.Any("header", c.Request.Header),
 		zap.Any("error", err),
 	)
-	c.JSON(code, gin.H{
+	c.AbortWithStatusJSON(code, gin.H{
 		"code":   code,
 		"status": "ERROR",
 		"error":  err,
 	})
+	c.Abort()
 }
