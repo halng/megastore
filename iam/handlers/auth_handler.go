@@ -7,18 +7,27 @@ import (
 	"github.com/tanhaok/megastore/db"
 	"github.com/tanhaok/megastore/dto"
 	"github.com/tanhaok/megastore/kafka"
+	"github.com/tanhaok/megastore/logging"
 	"github.com/tanhaok/megastore/models"
 	"github.com/tanhaok/megastore/utils"
-	"log"
+	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
 
 // ========================= Functions =========================
 
-// Register new account
-// Todo: change to create new account. -> Only user with role admin can create new account
-func Register(c *gin.Context) {
+// CreateStaff create a new staff account and send a message to kafka
+func CreateStaff(c *gin.Context) {
 	var userInput dto.RegisterRequest
+
+	// check if requester is super admin
+	requesterRole, _ := c.Get(constants.ApiUserRoles)
+	requesterId := c.GetHeader(constants.ApiUserIdRequestHeader)
+	if requesterRole != models.RoleSuperAdmin {
+		ResponseErrorHandler(c, http.StatusForbidden, constants.InvalidPermission, nil)
+		return
+	}
 
 	if err := c.ShouldBindJSON(&userInput); err != nil {
 		ResponseErrorHandler(c, http.StatusBadRequest, constants.MessageErrorBindJson, userInput)
@@ -35,16 +44,31 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	// only for newly created user. default password is "123456"
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(constants.DefaultPassword), bcrypt.DefaultCost)
+
 	account := models.Account{}
 	account.Email = userInput.Email
 	account.Username = userInput.Username
-	account.Password = userInput.Password
+	account.Password = string(hashedPassword)
 	account.LastName = userInput.LastName
 	account.FirstName = userInput.FirstName
-	_, err := account.SaveAccount()
+	account.CreateBy = requesterId
+
+	// get role id for staff
+	roleId, err := models.GetRoleIdByName(models.RoleStaff)
+	if err != nil {
+		logging.LOGGER.Error("Error when getting role id.", zap.Any("error", err))
+		ResponseErrorHandler(c, http.StatusInternalServerError, constants.InternalServerError, nil)
+		return
+	}
+
+	account.RoleId = roleId
+
+	_, err = account.SaveAccount()
 
 	if err != nil {
-		log.Printf("Error when saving account. %v", err)
+		logging.LOGGER.Error("Error when saving account.", zap.Any("error", err))
 		ResponseErrorHandler(c, http.StatusBadRequest, constants.MessageErrorBindJson, account)
 		return
 	}
@@ -81,7 +105,7 @@ func Login(c *gin.Context) {
 	}
 
 	token := account.GenerateAccessToken()
-	ResponseSuccessHandler(c, http.StatusOK, dto.LoginResponse{ApiToken: token})
+	ResponseSuccessHandler(c, http.StatusOK, dto.LoginResponse{ApiToken: token, Username: account.Username, Email: account.Email, ID: account.ID.String()})
 
 }
 

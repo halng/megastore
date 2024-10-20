@@ -1,4 +1,103 @@
 /* You can add global styles to this file, and also import other style files */
+@import "@coreui/coreui/scss/coreui";
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+// ============= for toaster
+// regular style toast
+@import 'ngx-toastr/toastr';
+
+// bootstrap style toast
+// or import a bootstrap 4 alert styled design (SASS ONLY)
+// should be after your bootstrap imports, it uses bs4 variables, mixins, functions
+// @import 'ngx-toastr/toastr-bs4-alert';
+
+// if you'd like to use it without importing all of bootstrap it requires
+// @import 'bootstrap/scss/functions';
+// @import 'bootstrap/scss/variables';
+// @import 'bootstrap/scss/mixins';
+// bootstrap 4
+// @import 'ngx-toastr/toastr-bs4-alert';
+// boostrap 5
+@import 'ngx-toastr/toastr-bs5-alert';
+
+// =============== end of toaster
+
+
+
+body {
+  background-color: var(--cui-tertiary-bg);
+}
+
+.wrapper {
+  width: 100%;
+  @include ltr-rtl("padding-left", var(--cui-sidebar-occupy-start, 0));
+  @include ltr-rtl("padding-right", var(--cui-sidebar-occupy-end, 0));
+  will-change: auto;
+  @include transition(padding 0.15s);
+}
+
+.header > .container-fluid,
+.sidebar-header {
+  min-height: calc(
+    4rem + 1px
+  ); // stylelint-disable-line function-disallowed-list
+}
+
+.sidebar-brand-full {
+  margin-left: 3px;
+}
+
+.sidebar-header {
+  .nav-underline-border {
+    --cui-nav-underline-border-link-padding-x: 1rem;
+    --cui-nav-underline-border-gap: 0;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    min-height: calc(
+      4rem + 1px
+    ); // stylelint-disable-line function-disallowed-list
+  }
+}
+
+.sidebar-toggler {
+  @include ltr-rtl("margin-left", auto);
+}
+
+.sidebar-narrow,
+.sidebar-narrow-unfoldable:not(:hover) {
+  .sidebar-toggler {
+    @include ltr-rtl("margin-right", auto);
+  }
+}
+
+.header > .container-fluid + .container-fluid {
+  min-height: 3rem;
+}
+
+.footer {
+  min-height: calc(
+    3rem + 1px
+  ); // stylelint-disable-line function-disallowed-list
+}
+
+@if $enable-dark-mode {
+  @include color-mode(dark) {
+    body {
+      background-color: var(--cui-dark-bg-subtle);
+    }
+
+    .footer {
+      --cui-footer-bg: var(--cui-body-bg);
+    }
+  }
+}
+
+// custom .chartjs-tooltip-body-item
+
+.chartjs-tooltip-body-item > td {
+  padding-bottom: 0 !important;
+  padding-top: 0 !important;
+  font-size: smaller;
+}

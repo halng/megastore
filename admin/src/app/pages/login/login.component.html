@@ -1,38 +1,63 @@
-<div class="login-container">
-  <div class="login-banner">
-    <img src="dashboard.jpeg" alt="banner" />
-  </div>
-  <div class="login-info">
-    <mat-form-field>
-      <mat-label>Enter your username</mat-label>
-      <input matInput [type]="'text'" [(ngModel)]="username" />
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Enter your password</mat-label>
-      <input
-        matInput
-        [type]="hide() ? 'password' : 'text'"
-        [(ngModel)]="password"
-      />
-      <button
-        mat-icon-button
-        matSuffix
-        (click)="onClickHidePassword($event)"
-        [attr.aria-label]="'Hide password'"
-        [attr.aria-pressed]="hide()"
-      >
-        <mat-icon>{{ hide() ? "visibility_off" : "visibility" }}</mat-icon>
-      </button>
-    </mat-form-field>
-
-    <button
-      mat-flat-button
-      type="submit"
-      class="btn btn-signin"
-      (click)="onSubmitForm($event)"
-    >
-      Sign In
-    </button>
-    <p><a href="#">Forgot password?</a></p>
-  </div>
+<div class="bg-light dark:bg-transparent min-vh-100 d-flex flex-row align-items-center">
+  <c-container breakpoint="md">
+    <c-row class="justify-content-center">
+      <c-col lg="10" xl="8">
+        <c-card-group>
+          <c-card class="p-4">
+            <c-card-body>
+              <form cForm>
+                <h1>Login</h1>
+                <p class="text-body-secondary">Sign In to your account</p>
+                <c-input-group class="mb-3">
+                  <span cInputGroupText>
+                    <svg cIcon name="cilUser"></svg>
+                  </span>
+                  <input autoComplete="username" name="username" cFormControl placeholder="Username" [(ngModel)]="username" />
+                </c-input-group>
+                <c-input-group class="mb-4">
+                  <span cInputGroupText>
+                    <svg cIcon name="cilLockLocked"></svg>
+                  </span>
+                  <input
+                    autoComplete="current-password"
+                    cFormControl
+                    placeholder="Password"
+                    type="password"
+                    name="password"
+                    [(ngModel)]="password"
+                  />
+                </c-input-group>
+                <c-row>
+                  <c-col xs="6">
+                    <button cButton type="submit" class="px-4" color="primary" (click)="onSubmitForm($event)">
+                      Login
+                    </button>
+                  </c-col>
+                  <c-col class="text-right" xs="6">
+                    <button cButton class="px-0" color="link">
+                      Forgot password?
+                    </button>
+                  </c-col>
+                </c-row>
+              </form>
+            </c-card-body>
+          </c-card>
+          <c-card [ngStyle]="{'minWidth.%': 44}" class="text-white bg-primary py-5">
+            <c-card-body class="text-center">
+              <div>
+                <h2>Sign up</h2>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                  tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+                <button [active]="true" cButton class="mt-3" color="primary" routerLink="/register">
+                  Register Now!
+                </button>
+              </div>
+            </c-card-body>
+          </c-card>
+        </c-card-group>
+      </c-col>
+    </c-row>
+  </c-container>
 </div>

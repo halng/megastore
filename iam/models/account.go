@@ -7,7 +7,9 @@ import (
 	"github.com/tanhaok/megastore/constants"
 	"github.com/tanhaok/megastore/db"
 	"github.com/tanhaok/megastore/dto"
+	"github.com/tanhaok/megastore/logging"
 	"github.com/tanhaok/megastore/utils"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
@@ -22,6 +24,7 @@ type Account struct {
 	Email     string    `json:"email"`
 	FirstName string    `json:"firstName"`
 	LastName  string    `json:"lastName"`
+	RoleId    string    `json:"roleId"`
 	CreateAt  int64     `json:"createAt"`
 	UpdateAt  int64     `json:"updateAt"`
 	CreateBy  string    `json:"createBy"`
@@ -32,7 +35,9 @@ func (account *Account) SaveAccount() (*Account, error) {
 
 	account.ID = uuid.New()
 	account.CreateAt = time.Now().Unix()
-	account.CreateBy = constants.DefaultCreator
+	if account.CreateBy != "" {
+		account.CreateBy = constants.DefaultCreator
+	}
 
 	if err := db.DB.Postgres.Create(&account).Error; err != nil {
 		return &Account{}, err
@@ -43,12 +48,6 @@ func (account *Account) SaveAccount() (*Account, error) {
 }
 
 func (account *Account) BeforeSave() error {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-
-	account.Password = string(hashedPassword)
 	account.UpdateAt = time.Now().Unix()
 	account.UpdateBy = account.Username
 	return nil
@@ -72,7 +71,13 @@ func (account *Account) ComparePassword(password string) bool {
 }
 
 func (account *Account) GenerateAccessToken() string {
-	jwtToken, err := utils.GenerateJWT(account.ID.String(), account.Username)
+
+	role, err := GetRoleById(account.RoleId)
+	if err != nil {
+		logging.LOGGER.Error("Cannot get role for user %s ", zap.Any("account", account))
+		return ""
+	}
+	jwtToken, err := utils.GenerateJWT(account.ID.String(), account.Username, role)
 	if err != nil {
 		log.Printf("Cannot generate access token for user %s ", account.Username)
 		return ""
